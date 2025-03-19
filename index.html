@@ -4,25 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Versicherungsangebot Generator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: auto;
-        }
-        label, input, select, button {
-            display: block;
-            margin: 10px 0;
-            width: 100%;
-        }
-        .insurance-row {
-            display: flex;
-            gap: 10px;
-        }
-        .insurance-row input {
-            flex: 1;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h2>Versicherungsangebot Generator</h2>
@@ -40,7 +22,7 @@
     <input type="number" id="anzahlVersicherungen" min="1" max="10" onchange="updateInsuranceRows()">
     
     <label>Anzahl der Vorschläge:</label>
-    <input type="number" id="anzahlVorschlaege" min="1">
+    <input type="number" id="anzahlVorschlaege" min="1" onchange="updateSuggestionTabs()">
     
     <label><input type="checkbox" id="rabattCheckbox" onchange="applyRabatt()"> Rabatt anwenden</label>
     
@@ -53,6 +35,9 @@
     <h3>Versicherungen</h3>
     <div id="insuranceContainer"></div>
     
+    <div class="tabs" id="suggestionTabs"></div>
+    <div id="suggestionContent"></div>
+    
     <h3>Gesamtsumme: <span id="gesamtsumme">0</span> €</h3>
     
     <button onclick="generateEmailText()">E-Mail-Text generieren</button>
@@ -60,66 +45,6 @@
     <h3>Generierter E-Mail-Text</h3>
     <textarea id="emailText" rows="6" readonly></textarea>
     
-    <script>
-        function updateInsuranceRows() {
-            let container = document.getElementById("insuranceContainer");
-            container.innerHTML = ""; 
-            let anzahl = parseInt(document.getElementById("anzahlVersicherungen").value) || 0;
-            
-            for (let i = 1; i <= anzahl; i++) {
-                let div = document.createElement("div");
-                div.className = "insurance-row";
-                div.innerHTML = `<input type="text" placeholder="Versicherung ${i}" id="versicherung${i}">
-                                 <input type="number" placeholder="Betrag (€)" id="betrag${i}" oninput="updateGesamtsumme()">`;
-                container.appendChild(div);
-            }
-        }
-        
-        function applyRabatt() {
-            let rabattAktiv = document.getElementById("rabattCheckbox").checked;
-            let anzahl = parseInt(document.getElementById("anzahlVersicherungen").value) || 0;
-            let rabatt = 0;
-            
-            if (rabattAktiv) {
-                if (anzahl === 2) rabatt = 0.05;
-                else if (anzahl === 3) rabatt = 0.10;
-                else if (anzahl === 4) rabatt = 0.15;
-                else if (anzahl >= 5) rabatt = 0.20;
-            }
-            
-            let versicherungen = document.querySelectorAll("#insuranceContainer input[type=number]");
-            versicherungen.forEach(input => {
-                let originalValue = parseFloat(input.getAttribute("data-original")) || parseFloat(input.value) || 0;
-                input.value = (originalValue * (1 - rabatt)).toFixed(2);
-            });
-            updateGesamtsumme();
-        }
-        
-        function updateGesamtsumme() {
-            let summe = 0;
-            let inputs = document.querySelectorAll("#insuranceContainer input[type=number]");
-            inputs.forEach(input => {
-                summe += parseFloat(input.value) || 0;
-            });
-            document.getElementById("gesamtsumme").innerText = summe.toFixed(2);
-        }
-        
-        function generateEmailText() {
-            let anrede = document.getElementById("anrede").value;
-            let name = document.getElementById("name").value;
-            let beitragsart = document.getElementById("beitragsart").value;
-            let anzahl = parseInt(document.getElementById("anzahlVersicherungen").value) || 0;
-            let text = `Hallo ${anrede} ${name},\n\nHier ist Ihr Versicherungsangebot:\n\n`;
-            
-            for (let i = 1; i <= anzahl; i++) {
-                let versicherung = document.getElementById(`versicherung${i}`).value;
-                let betrag = document.getElementById(`betrag${i}`).value;
-                text += `- ${versicherung}: ${betrag} € (${beitragsart})\n`;
-            }
-            
-            text += `\nGesamtsumme: ${document.getElementById("gesamtsumme").innerText} €\n`;
-            document.getElementById("emailText").value = text;
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
